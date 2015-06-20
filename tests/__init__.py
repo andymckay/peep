@@ -314,6 +314,20 @@ class FullStackTests(ServerTestCase):
             else:
                 self.fail("Peep exited successfully but shouldn't have.")
 
+    def test_duplicated(self):
+        """If a module is duplicated, peep should explode."""
+        with running_setup_py(False):
+            try:
+                self.install_from_string(
+                    """# sha256: f_y0x5sQfR1nj8HXuHStXojp_ihntAG-clNT2MNxF10
+                    useless==1.0
+                    # sha256: f_y0x5sQfR1nj8HXuHStXojp_ihntAG-clNT2MNxF10
+                    useless==1.0""")
+            except CalledProcessError as exc:
+                eq_(exc.returncode, SOMETHING_WENT_WRONG)
+            else:
+                self.fail("Peep exited successfully but shouldn't have.")
+
     def test_missing(self):
         """If a hash is missing, peep should explode."""
         with running_setup_py(False):

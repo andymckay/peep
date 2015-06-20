@@ -831,8 +831,15 @@ def peep_install(argv):
         reqs = list(chain.from_iterable(
             downloaded_reqs_from_path(path, argv)
             for path in req_paths))
-        buckets = bucket(reqs, lambda r: r.__class__)
 
+        # Check there are no duplicated names.
+        names = tuple(r._req.name for r in reqs)
+        duplicates = set([i for i in names if names.count(i) > 1])
+        if duplicates:
+            out('Duplicated names in file: {0}'.format(', '.join(duplicates)))
+            return SOMETHING_WENT_WRONG
+
+        buckets = bucket(reqs, lambda r: r.__class__)
         # Skip a line after pip's "Cleaning up..." so the important stuff
         # stands out:
         if any(buckets[b] for b in ERROR_CLASSES):
